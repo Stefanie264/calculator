@@ -2,37 +2,93 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>文件上传计算器</title>
+    <title>数据计算器</title>
     <style>
         body {
             font-family: 微软雅黑;
-            max-width: 500px;
+            max-width: 600px;
             margin: 30px auto;
             padding: 20px;
-            text-align: center;
+        }
+        .container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
         button {
-            margin: 20px;
+            background-color: #4CAF50;
+            color: white;
             padding: 10px 20px;
-            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            margin: 10px 0;
         }
         #result {
             margin-top: 20px;
             padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            background-color: #f5f5f5;
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
-    <h2>文件上传计算器</h2>
-    <input type="file" id="fileInput" accept=".txt">
-    <br>
-    <button onclick="calculate()">计算</button>
+    <h2>数据计算器</h2>
+
+    <!-- 文件上传部分 -->
+    <div class="container">
+        <h3>方式一：上传文件计算</h3>
+        <p>选择文本文件（每行一个数字）：</p>
+        <input type="file" id="fileInput" accept=".txt">
+        <br>
+        <button onclick="calculateFile()">计算文件数据</button>
+    </div>
+
+    <!-- 手动输入部分 -->
+    <div class="container">
+        <h3>方式二：手动输入计算</h3>
+        <p>输入数字（每行一个数字）：</p>
+        <textarea id="numberInput" placeholder="请输入数字，每行一个
+例如：
+23
+45
+67"></textarea>
+        <br>
+        <button onclick="calculateInput()">计算输入数据</button>
+    </div>
+
+    <!-- 结果显示区域 -->
     <div id="result"></div>
 
     <script>
-        function calculate() {
+        // 计算函数
+        function calculate(numbers) {
+            const sum = numbers.reduce((a, b) => a + b, 0);
+            const avg = sum / numbers.length;
+            const max = Math.max(...numbers);
+            const min = Math.min(...numbers);
+            
+            return `
+                <p>计算结果：</p>
+                <p>总和：${sum}</p>
+                <p>数字个数：${numbers.length}</p>
+                <p>平均值：${avg.toFixed(2)}</p>
+                <p>最大值：${max}</p>
+                <p>最小值：${min}</p>
+            `;
+        }
+
+        // 处理文件上传
+        function calculateFile() {
             const fileInput = document.getElementById('fileInput');
             const resultDiv = document.getElementById('result');
             
@@ -41,26 +97,46 @@
                 return;
             }
 
-            const file = fileInput.files[0];
             const reader = new FileReader();
-
             reader.onload = function(e) {
-                const text = e.target.result;
-                const numbers = text.split('\n')
+                const numbers = e.target.result
+                    .split('\n')
                     .map(line => line.trim())
-                    .filter(line => line !== '')
+                    .filter(line => line !== '' && !isNaN(line))
                     .map(Number);
 
-                const sum = numbers.reduce((a, b) => a + b, 0);
-                
-                resultDiv.innerHTML = `
-                    <p>总和：${sum}</p>
-                    <p>数字个数：${numbers.length}</p>
-                    <p>平均值：${(sum / numbers.length).toFixed(2)}</p>
-                `;
-            };
+                if (numbers.length === 0) {
+                    alert('文件中没有有效数字！');
+                    return;
+                }
 
-            reader.readAsText(file);
+                resultDiv.innerHTML = calculate(numbers);
+            };
+            reader.readAsText(fileInput.files[0]);
+        }
+
+        // 处理手动输入
+        function calculateInput() {
+            const input = document.getElementById('numberInput').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!input.trim()) {
+                alert('请输入数字！');
+                return;
+            }
+
+            const numbers = input
+                .split('\n')
+                .map(line => line.trim())
+                .filter(line => line !== '' && !isNaN(line))
+                .map(Number);
+
+            if (numbers.length === 0) {
+                alert('没有输入有效数字！');
+                return;
+            }
+
+            resultDiv.innerHTML = calculate(numbers);
         }
     </script>
 </body>
