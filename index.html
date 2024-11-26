@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>文件上传计算器</title>
+    <style>
+        body {
+            font-family: 微软雅黑;
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>文件上传计算器</h2>
+    <input type="file" id="fileInput" accept=".txt">
+    <br>
+    <button onclick="calculate()">计算</button>
+    <div id="result"></div>
+
+    <script>
+        function calculate() {
+            const fileInput = document.getElementById('fileInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!fileInput.files[0]) {
+                alert('请先选择文件！');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const text = e.target.result;
+                const numbers = text.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line !== '')
+                    .map(Number);
+
+                const sum = numbers.reduce((a, b) => a + b, 0);
+                
+                resultDiv.innerHTML = `
+                    <p>总和：${sum}</p>
+                    <p>数字个数：${numbers.length}</p>
+                    <p>平均值：${(sum / numbers.length).toFixed(2)}</p>
+                `;
+            };
+
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
